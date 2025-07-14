@@ -1,5 +1,5 @@
-
 import Hero from '../components/Hero'
+import Joblisting from '../components/Joblisting'
 import Navbar from '../components/Navbar'
 
 function Home() {
@@ -7,6 +7,7 @@ function Home() {
     <div>
       <Navbar/>
       <Hero/>
+      <Joblisting/>
     </div>
   )
 }

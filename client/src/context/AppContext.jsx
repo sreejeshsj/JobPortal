@@ -12,7 +12,9 @@ export const AppContext = createContext()
     
 
     const value={
-       setSearchFilter,setIsSearched
+       setSearchFilter,setIsSearched,
+       searchFilter,isSearched
+
     }
 
     return(
