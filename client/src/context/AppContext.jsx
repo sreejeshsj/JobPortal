@@ -12,7 +12,7 @@ export const AppContext = createContext()
     const [isSearched,setIsSearched]=useState(false)
     
     const [jobs,setJobs] = useState([])
-    
+    const [showRecruiterLogin,setShowRecruiterLogin] = useState(false)
     const fetchJobs=()=>{
         setJobs(jobsData)
     }
@@ -24,7 +24,8 @@ export const AppContext = createContext()
     const value={
        setSearchFilter,setIsSearched,
        searchFilter,isSearched,
-       jobs,setJobs
+       jobs,setJobs,
+       showRecruiterLogin,setShowRecruiterLogin
 
     }
 
