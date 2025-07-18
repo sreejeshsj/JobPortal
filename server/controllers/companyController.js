@@ -2,7 +2,7 @@ import companyModel from "../models/company.js";
 import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import createToken from "../utils/generateToken.js";
-
+import jobModel from "../models/job.js";
 //register a new company
 const registerCompany = async (req, res) => {
   const { name, email, password } = req.body;
@@ -53,25 +53,140 @@ const registerCompany = async (req, res) => {
 };
 
 //company login
-const loginCompany = (req, res) => {};
+const loginCompany = async (req, res) => {
+
+  try{
+    const {email,password}=req.body
+  const company= await companyModel.findOne({email})
+
+  if(!company){
+    return res.json({
+      success:false,
+      message:"Company with give mail does not exists"
+    })
+  }
+  const comparePassword= await bcrypt.compare(password,company.password)
+  if(comparePassword){
+    return res.json({
+      success:true,
+      message:'Logged in successfully',
+      company,
+      token:createToken(company.id)
+
+    })
+  }else{
+    return res.json({
+      success:false,
+      message:"Invalid Credentials"
+    })
+  }
+  }catch(err){
+     console.log(err.message)
+     res.json({
+      success:false,
+      message:err.message
+     })
+  }
+  
+};
 
 //get company data
-const getCompanyData = async (req, res) => {};
+const getCompanyData = async (req, res) => {
+  
+  try{
+    const company=req.company
+    res.json({
+      success:true,
+      company
+    })
+  }catch(err){
+    res.json({
+      success:false,
+      message:err.message
+     })
+  }
+};
 
 //Post a new Job
-const postJob = async (req, res) => {};
+const postJob = async (req, res) => {
+   const {title,description,salary,category,location,level}=req.body
+
+   const companyId = req.company
+   
+   try{
+        const job=await jobModel.create({
+    title,
+    description,
+    salary,
+    category,
+    location,
+    date:Date.now(),
+    companyId,
+    level
+
+
+   })
+   return res.json({
+    success:true,
+    message:"Job Posted Successfully",
+    job
+   })
+   }catch(err){
+     
+     res.json({
+      success:false,
+      message:err.message
+     })
+   }
+   
+};
 
 //get company job applicants
 const getCompanyJobApplicants = async (req, res) => {};
 
 //Get company posted jobs
-const getCompanyPostedJobs = async (req, res) => {};
+const getCompanyPostedJobs = async (req, res) => {
+  try{
+   const companyId=req.company._id
+   const jobs= await jobModel.find({companyId})
+   res.json({
+    success:true,
+    jobs
+   })
+  }catch(err){
+    res.json({
+      success:false,
+      message:err.message
+     })
+  }
+};
 
 //change application status
 const changeJobApplicationStatus = async (req, res) => {};
 
 //change job visibility
-const changeJobVisibility = async (req, res) => {};
+const changeJobVisibility = async (req, res) => {
+  try{
+    const {id} = req.body
+    const companyId=req.company._id
+    const job=await jobModel.findById(id)
+    if(companyId.toString() === job.companyId.toString()){
+      job.visible= ! job.visible
+    }
+    await job.save()
+
+    res.json({
+      success:true,
+      message:"Visibility changed Successfully",
+      job
+    })
+  }catch(err){
+     res.json({
+      success:false,
+      message:err.message
+     })
+  }
+};
 
 export {
   registerCompany,

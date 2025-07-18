@@ -8,6 +8,6 @@ const companySchema = new mongoose.Schema({
 });
 
 const companyModel =
-  mongoose.models.company || mongoose.model("Company", companySchema);
+  mongoose.models.Company || mongoose.model("Company", companySchema);
 
 export default companyModel;
