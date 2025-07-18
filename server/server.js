@@ -1,34 +1,38 @@
-import './config/instrument.js'
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import connectDb from './config/mongoDB.js'
-import * as Sentry from "@sentry/node"
-import clerkWebhooks from './controllers/webhooks.js'
+import "./config/instrument.js";
+import express from "express";
+import cors from "cors";
+import "dotenv/config";
+import connectDb from "./config/mongoDB.js";
+import * as Sentry from "@sentry/node";
+import clerkWebhooks from "./controllers/webhooks.js";
+import companyRouter from "./routes/companyRoutes.js";
+import connectCloudinary from "./config/cloudinary.js";
 //initilize express
-const app=express()
+const app = express();
 
 //middleware
-app.use(express.json())
-app.use(cors())
+app.use(express.json());
+app.use(cors());
 
 //db connection
-connectDb()
-
+await connectDb();
+//cloudinary connection
+await connectCloudinary();
 //routes
-app.get('/',(req,res)=>{
-    res.send("Api working")
-})
+app.get("/", (req, res) => {
+  res.send("Api working");
+});
 app.get("/debug-sentry", function mainHandler(req, res) {
   throw new Error("My first Sentry error!");
 });
 
-app.post('/webhooks',clerkWebhooks)
-//port 
-const port = process.env.PORT || 3000
+app.post("/webhooks", clerkWebhooks);
+app.use("/api/company", companyRouter);
+//port
+const port = process.env.PORT || 3000;
 
-Sentry.setupExpressErrorHandler(app)
+Sentry.setupExpressErrorHandler(app);
 
-app.listen(port,()=>{
-    console.log(`Server is Running Successfully at port ${port}`)
-})
+app.listen(port, () => {
+  console.log(`Server is Running Successfully at port ${port}`);
+});
