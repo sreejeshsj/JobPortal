@@ -9,11 +9,14 @@ import moment from "moment";
 import Jobcart from "../components/Jobcart";
 import Footer from "../components/Footer";
 import { toast } from "react-toastify";
-import axios from "axios";
+import axios, { getAdapter } from "axios";
+import { useAuth } from "@clerk/clerk-react";
 function Applyjob() {
   const { id } = useParams();
-  const { jobs, backendUrl, userData, userApplications,navigate } = useContext(AppContext);
+  const {getToken}=useAuth()
+  const { jobs, backendUrl, userData, userApplications,navigate, fetchUserApplications } = useContext(AppContext);
   const [jobData, setJobData] = useState(null);
+  const [isApplied,setIsApplied] = useState(false)
   const fetchJob = async () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/jobs/${id}`);
@@ -24,12 +27,12 @@ function Applyjob() {
       }
     } catch (err) {
       toast.error(err.message);
-      console.log(err.message);
+      
     }
   };
   const applyHandler=async()=>{
     try{
-      console.log(userData)
+      
       if(!userData){
         return toast.error("Login to apply for job")
       }
@@ -37,13 +40,42 @@ function Applyjob() {
         navigate('/applications')
         return toast.error("Upload resume to apply")
       }
+      const token = await getToken()
+      const {data} = await axios.post(`${backendUrl}/api/users/apply`,
+        {jobId:jobData._id},
+        {
+          headers:{Authorization:`Bearer ${token}`}
+        }
+      )
+      if(data.success){
+        toast.success(data.message)
+        fetchUserApplications()
+      }else{
+        toast.error(data.message)
+      }
     }catch(err){
-
+      toast.error(err.message)
     }
   }
+  const checkAlreadyApplied =()=>{
+    if(jobData && userApplications.length>0){
+       const isExists= userApplications.find((job)=>job.jobId._id === jobData._id)
+       if(isExists){
+      setIsApplied(true)
+    }
+    }
+   
+    
+  }
   useEffect(() => {
+    
     fetchJob();
+    
   }, [id]);
+useEffect(()=>{
+  checkAlreadyApplied()
+  
+},[id,jobData,userApplications])
   return jobData ? (
     <>
       <Navbar />
@@ -81,8 +113,8 @@ function Applyjob() {
               </div>
             </div>
             <div className="flex flex-col justify-center text-end text-sm max-md:mx-auto max-md:text-center">
-              <button onClick={()=>applyHandler()} className="bg-blue-600 py-2.5 px-10 text-white rounded">
-                Apply Now
+              <button onClick={()=>applyHandler()} className={`${isApplied ? 'bg-green-400' :'bg-blue-600'} py-2.5 px-10 text-white rounded mt-10`}>
+               {isApplied ? 'Already Applied' : 'Apply Now'} 
               </button>
               <p className="mt-1 text-gray-600">
                 Posted {moment(jobData.date).fromNow()}
@@ -96,8 +128,8 @@ function Applyjob() {
                 className="rich-text"
                 dangerouslySetInnerHTML={{ __html: jobData.description }}
               ></div>
-              <button onClick={()=>applyHandler()} className="bg-blue-600 py-2.5 px-10 text-white rounded mt-10">
-                Apply Now
+              <button onClick={()=>applyHandler()} className={`${isApplied ? 'bg-green-400' :'bg-blue-600'} py-2.5 px-10 text-white rounded mt-10`}>
+               {isApplied ? 'Already Applied' : 'Apply Now'} 
               </button>
             </div>
             {/*-------------------------right section--------------------------*/}
@@ -106,10 +138,16 @@ function Applyjob() {
               {jobs
                 .filter(
                   (job) =>
-                    job._id !== jobData._id &&
+                     job._id !== jobData._id &&
                     jobData.companyId._id === job.companyId._id
                 )
-                .filter((job) => true)
+                .filter((job) => {
+                  //set of applied jobs id
+                  const appliedJobsId= new Set(userApplications.map(app=>app.jobId && app.jobId._id))
+                  // Return True if the user does not apply this job
+                  return !appliedJobsId.has(job._id)
+
+                })
                 .slice(0, 4)
                 .map((job, index) => (
                   <Jobcart key={index} job={job} />

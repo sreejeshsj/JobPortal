@@ -33,10 +33,11 @@ const getUserData = async (req, res) => {
 
 const applyForJob = async (req, res) => {
   const { jobId } = req.body;
-
+ 
   try {
     const {userId} =await req.auth();
-    const alreadyApplied = await jobApplicationModel.find({ jobId, userId });
+    const alreadyApplied = await jobApplicationModel.findOne({ jobId, userId });
+
     if (alreadyApplied) {
       return res.json({
         success: false,
@@ -80,7 +81,6 @@ const getUserJobApplications = async (req, res) => {
       .populate("companyId", "name email image")
       .populate("jobId", "title description location category level salary")
       .exec();
-
     if (!applications) {
       return res.json({
         success: false,
@@ -88,14 +88,14 @@ const getUserJobApplications = async (req, res) => {
       });
     }
 
-    return response.json({
+    return res.json({
       success: true,
       applications,
     });
-  } catch (err) {
+  }catch(err) {
     res.json({
       success: false,
-      message: err.message,
+      message: "something",
     });
   }
 };
@@ -105,7 +105,7 @@ const getUserJobApplications = async (req, res) => {
 const updateUserResume = async (req, res) => {
   try {
     const {userId} =await req.auth();
-    const resumeFile = req.resumeFile;
+    const resumeFile = req.file;
 
     const userData = await UserModel.findById(userId);
 
