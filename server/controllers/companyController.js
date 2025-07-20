@@ -4,6 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 import createToken from "../utils/generateToken.js";
 import jobModel from "../models/job.js";
 import JobApplicationModel from '../models/jobApplication.js'
+import jobApplicationModel from "../models/jobApplication.js";
 //register a new company
 const registerCompany = async (req, res) => {
   const { name, email, password } = req.body;
@@ -143,7 +144,27 @@ const postJob = async (req, res) => {
 };
 
 //get company job applicants
-const getCompanyJobApplicants = async (req, res) => {};
+const getCompanyJobApplicants = async (req, res) => {
+  
+  try{
+    const companyId = req.company._id
+   
+    //find job Application for the user and populate related data
+    const applications= await jobApplicationModel.find({companyId}).populate('userId','name image resume')
+    .populate('jobId','title location category level salary')
+    .exec()
+
+    return res.json({
+      success:true,
+      applications
+    })
+  }catch(err){
+     res.json({
+      success:false,
+      message:err.message
+     })
+  }
+};
 
 //Get company posted jobs
 const getCompanyPostedJobs = async (req, res) => {
@@ -169,7 +190,21 @@ const getCompanyPostedJobs = async (req, res) => {
 };
 
 //change application status
-const changeJobApplicationStatus = async (req, res) => {};
+const changeJobApplicationStatus = async (req, res) => {
+  try{
+      const {id,status}=req.body
+      const updatedData=await jobApplicationModel.findByIdAndUpdate(id,{status})
+      res.json({
+        succes:true,
+        updatedData
+      })
+  }catch(err){
+    res.json({
+      success:false,
+      message:err.message
+     })
+  }
+};
 
 //change job visibility
 const changeJobVisibility = async (req, res) => {

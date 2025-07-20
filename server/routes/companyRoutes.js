@@ -28,7 +28,7 @@ router.get('/company',authMiddleware,getCompanyData)
 router.post('/post-job',authMiddleware,postJob)
 
 //get applicants data of company
-router.get('/applicants',getCompanyJobApplicants)
+router.get('/applicants',authMiddleware,getCompanyJobApplicants)
 
 //get company job list
 router.get('/list-jobs',authMiddleware,getCompanyPostedJobs)
