@@ -1,7 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Quill  from "quill";
 import { JobCategories, JobLocations } from "../assets/assets";
+import axios from "axios";
+import { AppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
 function Addjobs() {
+  const {backendUrl,companyToken}=useContext(AppContext)
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("Bengalore");
   const [category, setCategory] = useState("Programming");
@@ -9,7 +13,27 @@ function Addjobs() {
   const [salary,setSalary] = useState(0)
   const editRef=useRef(null)
   const quillRef=useRef(null)
-
+  const onSubmitHandler = async (e)=>{
+    e.preventDefault()
+    try{
+        const description = quillRef.current.root.innerHTML
+        const {data}=await axios.post(`${backendUrl}/api/company/post-job`,{
+          title,description,location,category,salary,level
+      },{headers:{
+        token:companyToken
+      }})
+      if(data.success){
+        toast.success(data.message)
+        setTitle("")
+        setSalary(0)
+        quillRef.current.root.innerHTML=""
+      }else{
+        toast.error(data.message)
+      }
+    }catch(err){
+      toast.error(err.message)
+    }
+  }
   useEffect(()=>{
      //Initiate quill only once
      if(!quillRef.current && editRef.current){
@@ -19,7 +43,7 @@ function Addjobs() {
      }
   },[])
   return (
-    <form className="container p-4 flex flex-col w-full items-start gap-3 ">
+    <form onSubmit={onSubmitHandler} className="container p-4 flex flex-col w-full items-start gap-3 ">
       <div className="w-full">
         <p className="mb-2">Job Title</p>
         <input className="w-full max-w-lg px-3 py-2 border-2 border-gray-300 rounded" onChange={(e)=>setTitle(e.target.value)}  value={title} type="text" placeholder="Type here" required />

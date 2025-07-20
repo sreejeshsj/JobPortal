@@ -8,12 +8,15 @@ import clerkWebhooks from "./controllers/webhooks.js";
 import companyRouter from "./routes/companyRoutes.js";
 import connectCloudinary from "./config/cloudinary.js";
 import jobRouter from './routes/jobRoutes.js'
+import userRouter from './routes/userRoutes.js'
+import {clerkMiddleware} from '@clerk/express'
 //initilize express
 const app = express();
 
 //middleware
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
+app.use(clerkMiddleware())
 
 //db connection
 await connectDb();
@@ -30,6 +33,7 @@ app.get("/debug-sentry", function mainHandler(req, res) {
 app.post("/webhooks", clerkWebhooks);
 app.use("/api/company", companyRouter);
 app.use('/api/jobs',jobRouter)
+app.use('/api/user',userRouter)
 //port
 const port = process.env.PORT || 3000;
 
