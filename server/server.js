@@ -14,7 +14,13 @@ import {clerkMiddleware} from '@clerk/express'
 const app = express();
 
 //middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173", // dev
+    "https://job-portal-new-1-eight.vercel.app/", // prod
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(clerkMiddleware())
 
