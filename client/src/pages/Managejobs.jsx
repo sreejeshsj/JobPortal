@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import moment from 'moment'
 import Loading from '../components/Loading'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate} from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -39,7 +39,10 @@ function Managejobs() {
     }
   }
   useEffect(()=>{
-        fetchCompanyJobs()
+    if(companyToken){
+      fetchCompanyJobs()
+    }
+        
   },[companyToken])
   return jobs ? jobs.length ===0 ? (
     <div className='flex items-center justify-center h-[70vh]'>

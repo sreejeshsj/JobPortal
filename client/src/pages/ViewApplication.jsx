@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { assets, viewApplicationsPageData } from '../assets/assets'
+import  { useContext, useEffect, useState } from 'react'
+import { assets } from '../assets/assets'
 import { AppContext } from '../context/AppContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import Loading from '../components/Loading'
 function ViewApplication() {
-  const {backendUrl,companyToken,userApplications}=useContext(AppContext)
+  const {backendUrl,companyToken}=useContext(AppContext)
   const [applicants,setApplicants]=useState(false)
 
   //company to fetch company job application data
@@ -14,8 +14,9 @@ function ViewApplication() {
     try{
       const {data}=await axios.get(`${backendUrl}/api/company/applicants`,{headers:{token:companyToken}})
       if(data.success){
-          console.log(data.applications)
+          
           setApplicants(data.applications)
+          fetchCompanyJobApplications();
       }else{
           toast.error(data.message)
       }

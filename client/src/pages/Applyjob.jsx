@@ -9,7 +9,7 @@ import moment from "moment";
 import Jobcart from "../components/Jobcart";
 import Footer from "../components/Footer";
 import { toast } from "react-toastify";
-import axios, { getAdapter } from "axios";
+import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 function Applyjob() {
   const { id } = useParams();
