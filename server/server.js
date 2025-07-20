@@ -17,7 +17,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173", // dev
-    "https://job-portal-new-1-eight.vercel.app/", // prod
+    "https://job-portal-eight-khaki.vercel.app/", // prod
   ],
   credentials: true
 }));
