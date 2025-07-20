@@ -33,7 +33,7 @@ app.get("/debug-sentry", function mainHandler(req, res) {
 app.post("/webhooks", clerkWebhooks);
 app.use("/api/company", companyRouter);
 app.use('/api/jobs',jobRouter)
-app.use('/api/user',userRouter)
+app.use('/api/users',userRouter)
 //port
 const port = process.env.PORT || 3000;
 

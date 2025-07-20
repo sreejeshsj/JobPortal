@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 function Applyjob() {
   const { id } = useParams();
-  const { jobs, backendUrl } = useContext(AppContext);
+  const { jobs, backendUrl, userData, userApplications,navigate } = useContext(AppContext);
   const [jobData, setJobData] = useState(null);
   const fetchJob = async () => {
     try {
@@ -27,6 +27,20 @@ function Applyjob() {
       console.log(err.message);
     }
   };
+  const applyHandler=async()=>{
+    try{
+      console.log(userData)
+      if(!userData){
+        return toast.error("Login to apply for job")
+      }
+      if(!userData.resume){
+        navigate('/applications')
+        return toast.error("Upload resume to apply")
+      }
+    }catch(err){
+
+    }
+  }
   useEffect(() => {
     fetchJob();
   }, [id]);
@@ -67,7 +81,7 @@ function Applyjob() {
               </div>
             </div>
             <div className="flex flex-col justify-center text-end text-sm max-md:mx-auto max-md:text-center">
-              <button className="bg-blue-600 py-2.5 px-10 text-white rounded">
+              <button onClick={()=>applyHandler()} className="bg-blue-600 py-2.5 px-10 text-white rounded">
                 Apply Now
               </button>
               <p className="mt-1 text-gray-600">
@@ -82,7 +96,7 @@ function Applyjob() {
                 className="rich-text"
                 dangerouslySetInnerHTML={{ __html: jobData.description }}
               ></div>
-              <button className="bg-blue-600 py-2.5 px-10 text-white rounded mt-10">
+              <button onClick={()=>applyHandler()} className="bg-blue-600 py-2.5 px-10 text-white rounded mt-10">
                 Apply Now
               </button>
             </div>
